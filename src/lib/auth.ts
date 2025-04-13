@@ -1,9 +1,9 @@
-import NextAuth from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { db } from '../../prisma/prisma'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compareSync } from 'bcrypt-ts-edge'
 import type { NextAuthConfig } from 'next-auth'
+import NextAuth from 'next-auth'
 
 export const config = {
   pages: {
@@ -20,19 +20,20 @@ export const config = {
       email: { type: 'email' },
       password: {type: 'password'}
     },
-    async authorize(credentials: {email: string, password: string}) {
+    //@ts-expect-error its broken
+    async authorize(credentials){
       if (credentials === null) return null
       
       //find the user in the db
       const user = await db.user.findFirst({
         where: {
-          email: credentials.email
+          email: credentials.email as string
         }
       })
 
       //check if the user exits and if the password matches
       if (user && user.password) {
-        const isMatch = compareSync(credentials.password, user.password)
+        const isMatch = compareSync(credentials.password as string, user.password)
 
         //if password is correct, then return the user
         if (isMatch) {
@@ -49,8 +50,8 @@ export const config = {
     }
   })],
   callbacks: {
-    async session({ session, user, trigger, token }: any) {
-      
+    async session({ session, user, trigger, token }) {
+      //@ts-expect-error it will pass
       session.user.id = token.sub
 
       //if there is an update

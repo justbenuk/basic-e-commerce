@@ -2,7 +2,6 @@
 
 import { signInFormSchema } from "@/lib/validators";
 import { signIn, signOut } from "@/lib/auth";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 //sign in user with credentials
 export async function signInWithCredentials(
@@ -19,11 +18,7 @@ export async function signInWithCredentials(
 
     return { success: true, message: "Signed in successfully" };
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw Error;
-    }
-
-    return { success: false, message: "Invalid email or password" };
+    return { success: false, message: `Invalid email or password, ${error}` };
   }
 }
 
