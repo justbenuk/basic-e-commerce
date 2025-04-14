@@ -1,6 +1,6 @@
 import React from "react";
 import ModeToggle from "./mode-toggle";
-import { EllipsisVertical, ShoppingCartIcon, UserIcon } from "lucide-react";
+import { EllipsisVertical, ShoppingCartIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import {
