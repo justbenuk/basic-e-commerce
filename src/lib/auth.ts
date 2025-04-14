@@ -50,9 +50,11 @@ export const config = {
     }
   })],
   callbacks: {
-    async session({ session, user, trigger, token }) {
-      //@ts-expect-error it will pass
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async session({ session, user, trigger, token }: any) {
       session.user.id = token.sub
+      session.user.role = token.role
+      session.user.name = token.name
 
       //if there is an update
       if (trigger === 'update') {
@@ -60,8 +62,28 @@ export const config = {
       }
 
       return session
+    },
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async jwt({ token, user }: any) {
+    if (user) {
+      token.role = user.role
+
+      if (user.name === 'NO_NAME') {
+        token.name = user.email!.split('@')[0]
+
+        await db.user.update({
+          where: {
+            id: user.id
+          },
+          data: {
+            name: token.name
+          }
+        })
+      }
     }
+    return token
   }
+}
 } satisfies NextAuthConfig
 
 export const { handlers, signIn, signOut, auth } = NextAuth(config) 
