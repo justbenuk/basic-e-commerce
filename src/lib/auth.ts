@@ -2,8 +2,8 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { db } from '../../prisma/prisma'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compareSync } from 'bcrypt-ts-edge'
-import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
+import { authConfig } from './auth-config'
 
 export const config = {
   pages: {
@@ -11,19 +11,19 @@ export const config = {
     error: '/signin'
   },
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt' as const,
     maxAge: 30 * 24 * 60 * 30
   },
   adapter: PrismaAdapter(db),
   providers: [CredentialsProvider({
     credentials: {
       email: { type: 'email' },
-      password: {type: 'password'}
+      password: { type: 'password' }
     },
     //@ts-expect-error its broken
-    async authorize(credentials){
+    async authorize(credentials) {
       if (credentials === null) return null
-      
+
       //find the user in the db
       const user = await db.user.findFirst({
         where: {
@@ -64,26 +64,27 @@ export const config = {
       return session
     },
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async jwt({ token, user }: any) {
-    if (user) {
-      token.role = user.role
+    async jwt({ token, user }: any) {
+      if (user) {
+        token.role = user.role
 
-      if (user.name === 'NO_NAME') {
-        token.name = user.email!.split('@')[0]
+        if (user.name === 'NO_NAME') {
+          token.name = user.email!.split('@')[0]
 
-        await db.user.update({
-          where: {
-            id: user.id
-          },
-          data: {
-            name: token.name
-          }
-        })
+          await db.user.update({
+            where: {
+              id: user.id
+            },
+            data: {
+              name: token.name
+            }
+          })
+        }
       }
-    }
-    return token
+      return token
+    },
+    ...authConfig.callbacks,
   }
 }
-} satisfies NextAuthConfig
 
 export const { handlers, signIn, signOut, auth } = NextAuth(config) 

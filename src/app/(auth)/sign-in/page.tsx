@@ -14,7 +14,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Sign In",
+  title: "Sign In | Basic ECommerce",
 };
 
 export default async function SignInPage(props: {

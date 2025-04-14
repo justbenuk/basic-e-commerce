@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 import CredentialsSignUpForm from "@/forms/auth/credentials-signup";
 
 export const metadata: Metadata = {
-  title: "Sign In",
+  title: "Sign Up | Basic ECommerce",
 };
 
 export default async function SignUpPage(props: {
